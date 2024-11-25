@@ -7,97 +7,108 @@
 
 
 import SwiftUI
+import CoreData
 
-// MARK: Chat Session Model
 
-struct ChatSession: Identifiable {
-    let id = UUID()
-    var title: String
-    var messages: [Message]
-    
-    var lastMessageTime: String {
-        guard let lastMessage = messages.last else { return "" }
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: lastMessage.timestamp)
+// MARK: Extension
+// Extension to get messages as an array
+extension ChatSessionEntity {
+    var messagesArray: [MessageEntity] {
+        let set = messages as? Set<MessageEntity> ?? []
+        return set.sorted {
+            ($0.timestamp ?? Date()) < ($1.timestamp ?? Date())
+        }
     }
 }
+
 
 struct ChatsListView: View {
-    @State private var chatSessions: [ChatSession] = [
-        // Sample chat sessions
-        ChatSession(title: "Chat with Bot", messages: [
-            Message(text: "Hello! How can I assist you today?", isUser: false)
-        ])
-    ]
+    @Environment(\.managedObjectContext) private var viewContext
+    @FetchRequest(
+        sortDescriptors: [],
+        animation: .default)
+    private var chatSessions: FetchedResults<ChatSessionEntity>
+
     @State private var editMode: EditMode = .inactive
-    
+
     var body: some View {
-            NavigationView {
-                List {
-                    ForEach($chatSessions) { $session in
-                        NavigationLink(destination: ChatView(chatSession: $session)) {
-                            HStack {
-                                Image(systemName: "message.fill")
-                                    .foregroundColor(.blue)
-                                if editMode == .active {
-                                    TextField("Session Title", text: $session.title)
-                                } else {
-                                    VStack(alignment: .leading) {
-                                        HStack {
-                                            Text(session.title)
-                                                .font(.headline)
-                                            Spacer()
-                                            Text(session.lastMessageTime)
-                                                .font(.subheadline)
-                                                .foregroundColor(.gray)
-                                        }
-                                        Text(session.messages.last?.text ?? "")
-                                            .font(.subheadline)
-                                            .foregroundColor(.gray)
-                                            .lineLimit(1)
-                                    }
+        NavigationView {
+            List {
+                ForEach(chatSessions) { session in
+                    NavigationLink(destination: ChatView(chatSession: session)) {
+                        HStack {
+                            Image(systemName: "message.fill")
+                                .foregroundColor(.blue)
+                            if editMode == .active {
+                                TextField("Session Title", text: Binding(
+                                    get: { session.title ?? "" },
+                                    set: { session.title = $0; saveContext() }
+                                ))
+                            } else {
+                                VStack(alignment: .leading) {
+                                    Text(session.title ?? "Chat")
+                                        .font(.headline)
+                                    Text(session.messagesArray.last?.text ?? "")
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                        .lineLimit(1)
                                 }
                             }
-                            .padding(.vertical, 5)
                         }
-                    }
-                    .onDelete(perform: deleteSession)
-                }
-                .navigationTitle("Chats")
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        EditButton()
-                    }
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: newChatSession) {
-                            Image(systemName: "plus")
-                        }
+                        .padding(.vertical, 5)
                     }
                 }
-                .environment(\.editMode, $editMode)
+                .onDelete(perform: deleteSession)
             }
+            .navigationTitle("Chats")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    EditButton()
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: newChatSession) {
+                        Image(systemName: "plus")
+                    }
+                }
+            }
+            .environment(\.editMode, $editMode)
         }
-    
-    // Helper function to get binding for a chat session
-    func binding(for session: ChatSession) -> Binding<ChatSession> {
-        guard let index = chatSessions.firstIndex(where: { $0.id == session.id }) else {
-            fatalError("Chat session not found")
-        }
-        return $chatSessions[index]
     }
-    
+
     func newChatSession() {
-        let newSession = ChatSession(title: "New Chat", messages: [])
-        chatSessions.append(newSession)
+        let newSession = ChatSessionEntity(context: viewContext)
+        newSession.id = UUID()
+        newSession.title = "New Chat"
+
+        saveContext()
     }
-    
+
     func deleteSession(at offsets: IndexSet) {
-        chatSessions.remove(atOffsets: offsets)
+        for index in offsets {
+            let session = chatSessions[index]
+            viewContext.delete(session)
+        }
+        saveContext()
+    }
+
+    private func saveContext() {
+        do {
+            try viewContext.save()
+        } catch {
+            // Handle the error appropriately
+            let nsError = error as NSError
+            fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+        }
     }
 }
 
-//#Preview {
-//    ChatsListView().environment(\.managedObjectContext, PersistenceController.preview.container.viewContext)
-//}
 
+// MARK: Preview
+struct ChatsListView_Previews: PreviewProvider {
+    static var previews: some View {
+        let context = PersistenceController.preview.container.viewContext
+
+        return ChatsListView()
+            .environment(\.managedObjectContext, context)
+    }
+}
