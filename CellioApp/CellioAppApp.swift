@@ -13,7 +13,7 @@ struct CellioAppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ChatsListView()
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
