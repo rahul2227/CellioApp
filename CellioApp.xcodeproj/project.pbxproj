@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		B76653222CF564FA000912B9 /* SwiftTokenizer in Frameworks */ = {isa = PBXBuildFile; productRef = B76653212CF564FA000912B9 /* SwiftTokenizer */; };
+		B76653252CF565B9000912B9 /* Transformers in Frameworks */ = {isa = PBXBuildFile; productRef = B76653242CF565B9000912B9 /* Transformers */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		B752031C2CECA91D0038D282 /* CellioApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CellioApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +28,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B76653252CF565B9000912B9 /* Transformers in Frameworks */,
+				B76653222CF564FA000912B9 /* SwiftTokenizer in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +72,8 @@
 			);
 			name = CellioApp;
 			packageProductDependencies = (
+				B76653212CF564FA000912B9 /* SwiftTokenizer */,
+				B76653242CF565B9000912B9 /* Transformers */,
 			);
 			productName = CellioApp;
 			productReference = B752031C2CECA91D0038D282 /* CellioApp.app */;
@@ -94,6 +103,10 @@
 			);
 			mainGroup = B75203132CECA91D0038D282;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				B76653202CF564FA000912B9 /* XCRemoteSwiftPackageReference "SwiftTokenizer" */,
+				B76653232CF565B9000912B9 /* XCRemoteSwiftPackageReference "swift-transformers" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B752031D2CECA91D0038D282 /* Products */;
 			projectDirPath = "";
@@ -322,6 +335,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		B76653202CF564FA000912B9 /* XCRemoteSwiftPackageReference "SwiftTokenizer" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RayKitajima/SwiftTokenizer.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		B76653232CF565B9000912B9 /* XCRemoteSwiftPackageReference "swift-transformers" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/huggingface/swift-transformers.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.14;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		B76653212CF564FA000912B9 /* SwiftTokenizer */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B76653202CF564FA000912B9 /* XCRemoteSwiftPackageReference "SwiftTokenizer" */;
+			productName = SwiftTokenizer;
+		};
+		B76653242CF565B9000912B9 /* Transformers */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B76653232CF565B9000912B9 /* XCRemoteSwiftPackageReference "swift-transformers" */;
+			productName = Transformers;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = B75203142CECA91D0038D282 /* Project object */;
 }
